@@ -9,12 +9,106 @@ This project outlines the process I went through (with assistance from Microsoft
 This build stems off a [CM6206 based SPDIF Sound Card](https://www.amazon.com.au/Sound-Card-Channel-Output-Adapter/dp/B0CGX1WDFW). This hardware is limited by only allowing a single input be selected (Line In, Mic In, or SPDIF In) in the Audio Interface at any given time. To get around this and mix together the SPDIF Input with the Microphone Signal, some HID trickery was used to take the SPDIF Stereo Input and route it across the 5.1 Out (SPDIF and Front/Rear/Center/Bass TRS) out, and to sum the Line In and Mic internally in the box. 
 
 This allowed a TRS Cable to jump connect the Front Out to the Line In (carrying the SPDIF Stereo Audio). This mixed output (with levels controlled by the Raspberry PI via commands or the Flask Web UI) is then sent out the SPDIF Out which can go to a Soundbar or Speaker Set. 
-The Microphone input is a 3.5MM Stereo jack, so I ended up using a 6.5MM to 3.5MM Adapter which was lying around. The microphone I have was very low gain, so by default the microphone volume is set to 100% - this may result in some lost eardrums or speaker grills if not careful (have the Flask UI Open to control volume for the Mic when first connecting and if possible mute the Microphone first).
 
+The Microphone uses is a 3.5MM jack, so I ended up using a 6.35MM to 3.5MM Adapter which was lying around. The microphone I have was very low gain, so by default the microphone volume is set to 100% - this may result in some lost eardrums or speaker grills if not careful (have the Flask UI Open to control volume for the Mic when first connecting and if possible mute the Microphone first).
 ![Photograph of the CM6206 Kareoke Box showing TOSLINK Input/Output and TRS Link](docs/photos/photo1.jpg)
 
 ## Hardware Warnings
 Although these audio interfaces list 5.1 is supported, 5.1 Dolby/ACS Encrypted Audio will not work with this solution as this cannot be decrypted and mixed. The Web Interface running on port 80 of the system allows the user to switch between Dolby Bypass (no Microphone Mix) and PCM + Microphone Mode.
+
+## Audio Signal Path
+
+The CM6206 operates in two distinct modes:
+
+- 🟦 **PCM Mode**: PCM audio is looped back through Line In and mixed with the microphone.
+- 🟪 **Encoded Mode**: Dolby/encoded audio bypasses the mixer and is passed directly to S/PDIF Out.
+
+```mermaid
+flowchart LR
+
+    INPUT(["🔌 TOSLINK IN<br/>S/PDIF Source"])
+    OUTPUT(["🔊 S/PDIF OUT<br/>AV Receiver / Speakers"])
+
+    subgraph PCM["🟦 PCM + Microphone Mode"]
+        direction LR
+
+        FRONT["🎵 Front Output"]
+        LOOP["🔁 External<br/>TRS Loop"]
+        LINE["🎚️ Line In"]
+        MIXER{{"🎛️ CM6206<br/>Mixer"}}
+        MIC(["🎤 Microphone"])
+
+        FRONT --> LOOP
+        LOOP --> LINE
+        LINE --> MIXER
+        MIC --> MIXER
+    end
+
+    subgraph ENCODED["🟪 Dolby / Encoded Mode"]
+        direction LR
+
+        PASS["🔐 Bitstream<br/>Passthrough"]
+    end
+
+    INPUT -->|"PCM"| FRONT
+    MIXER -->|"PCM + Mic"| OUTPUT
+
+    INPUT -->|"Dolby / DTS / Encoded"| PASS
+    PASS -->|"Unmodified Bitstream"| OUTPUT
+
+    classDef input fill:#334155,stroke:#94a3b8,color:#ffffff,stroke-width:2px;
+    classDef pcm fill:#0e7490,stroke:#22d3ee,color:#ffffff,stroke-width:2px;
+    classDef mixer fill:#0369a1,stroke:#38bdf8,color:#ffffff,stroke-width:3px;
+    classDef mic fill:#047857,stroke:#34d399,color:#ffffff,stroke-width:2px;
+    classDef encoded fill:#6d28d9,stroke:#a78bfa,color:#ffffff,stroke-width:2px;
+    classDef output fill:#b45309,stroke:#fbbf24,color:#ffffff,stroke-width:2px;
+
+    class INPUT input;
+    class FRONT,LOOP,LINE pcm;
+    class MIXER mixer;
+    class MIC mic;
+    class PASS encoded;
+    class OUTPUT output;
+```
+
+### Signal Summary
+
+| Mode | Input | Processing | Microphone | Output |
+|---|---|---|---|---|
+| 🟦 `pcm` | PCM S/PDIF | Front Out → TRS Loop → Line In → Mixer | ✅ Mixed | PCM S/PDIF |
+| 🟪 `encoded` | Dolby / DTS / Encoded S/PDIF | Direct bitstream passthrough | ❌ Bypassed | Original encoded S/PDIF |
+
+### PCM Mode
+
+```text
+TOSLINK IN
+    │
+    ▼
+Front Output ──► External TRS Loop ──► Line In
+                                          │
+Microphone ───────────────────────────────┤
+                                          ▼
+                                     CM6206 Mixer
+                                          │
+                                          ▼
+                                     S/PDIF OUT
+```
+
+PCM mode allows the CM6206 to combine the incoming PCM audio with the microphone before sending the resulting PCM stream to the S/PDIF output.
+
+### Encoded Mode
+
+```text
+TOSLINK IN ──► Encoded Bitstream Passthrough ──► S/PDIF OUT
+                       ▲
+                       │
+             Mixer and Mic bypassed
+```
+
+Encoded mode avoids processing the incoming bitstream. This allows formats such as Dolby Digital to reach the downstream decoder without being altered by the PCM mixing path.
+
+> **Why the external TRS loop?**  
+> In PCM mode, the CM6206's Front Output is physically looped back into Line In. This makes the incoming PCM audio available to the CM6206 mixer alongside the microphone input.
 
 ## Software Installation
 - `sudo ./install.sh`: standard installation, no startup optimisation.
