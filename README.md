@@ -82,7 +82,7 @@ If you don't want to use the Flask Server to control Levels and the SPDIF Bypass
 
 ## Startup Optimisation Script
 Original build was on a Raspberry Pi 3B, but this should work on any Ubuntu System. 
-The [Startup Optimiser Script](docs/optimisation.md) is built solely with *Raspberry Pi OS Lite* in mind - utilisation of Boot Optimiser script is with full discretion of the user and is recomended only if the Raspberry Pi system is dedicated to this project. Impacted system services may be impacted by this change.
+The [Startup Optimiser Script](docs/optimisation.md) is built solely with *Raspberry Pi OS Lite* in mind - utilisation of Boot Optimiser script is with full discretion of the user and is recommended only if the Raspberry Pi system is dedicated to this project. Impacted system services may be impacted by this change.
 
 ## Testing
 Testing has currently been completed on a Raspberry Pi 3 Model B, covering installation, PCM/encoded mode switching, microphone mixing, web control, USB reconnect handling, and startup optimisation. See the [Testing](Docs/Testing.md) page for the full test matrix, results, and platforms still requiring validation.
