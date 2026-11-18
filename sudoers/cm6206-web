@@ -1,0 +1,2 @@
+cm6206-web ALL=(root) NOPASSWD: /usr/local/sbin/cm6206-mode pcm
+cm6206-web ALL=(root) NOPASSWD: /usr/local/sbin/cm6206-mode encoded

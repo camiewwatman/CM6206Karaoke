@@ -1,0 +1,22 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+set -euo pipefail
+CTL=/usr/local/bin/cm6206ctl
+mode=${1:-}
+CARD=""
+for p in /proc/asound/card*/id; do
+  [[ -r "$p" && "$(<"$p")" == ICUSBAUDIO7D ]] || continue
+  CARD="${p#/proc/asound/card}"; CARD="${CARD%/id}"; break
+done
+[[ -n "$CARD" ]] || { echo 'ICUSBAUDIO7D not found' >&2; exit 1; }
+case "$mode" in
+ pcm)
+  amixer -c "$CARD" sset 'PCM Capture Source' 'Mixer' >/dev/null
+  "$CTL" -r 1 -m 0x0007 -w 0x0001 >/dev/null
+  "$CTL" -r 5 -m 0x0800 -w 0x0800 >/dev/null ;;
+ encoded)
+  "$CTL" -r 5 -m 0x0800 -w 0x0000 >/dev/null
+  "$CTL" -r 1 -m 0x0007 -w 0x0004 >/dev/null ;;
+ *) echo 'Usage: cm6206-mode {pcm|encoded}' >&2; exit 2 ;;
+esac
+printf '%s\n' "$mode" >/run/cm6206-mode

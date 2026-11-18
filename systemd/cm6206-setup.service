@@ -1,0 +1,9 @@
+[Unit]
+Description=Configure CM6206 audio routing at boot
+After=systemd-udev-settle.service
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/cm6206-setup.sh
+RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+[Unit]
+Description=Reconfigure CM6206 after USB reconnect
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/cm6206-setup.sh
