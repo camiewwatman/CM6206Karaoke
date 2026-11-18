@@ -47,7 +47,7 @@ Although these audio interfaces list 5.1 is supported, 5.1 Dolby/ACS Encrypted A
 - `sudo ./install.sh`: standard installation, no startup optimisation.
 - `sudo ./install-optimised.sh`: installation plus appliance boot optimisation.
 
-## Software Choices and Limitations
+## Local Control and GPIO
 If you don't want to use the Flask Server to control Levels and the SPDIF Bypass for 5.1 Encrypted Audio, visit the [Local Control](docs/local-control.md) page for details on the commands you can run from the Terminal to control all aspects, as well as guidance on connecting this to GPIO Controls.
 
 ## Startup Optimisation Script
