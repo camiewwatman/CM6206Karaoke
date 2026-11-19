@@ -3,7 +3,7 @@
 
 [![License: GPL v3+](https://img.shields.io/badge/License-GPLv3%2B-blue.svg)](LICENSE)
 
-This project outlines the process I went through (with assistance from Microsoft CoPilot) to develop a Karaoke Box using a cheap $30 [CM6206 TOSLINK/SPDIF Sound Card](https://www.amazon.com.au/Sound-Card-Channel-Output-Adapter/dp/B0CGX1WDFW) from Amazon and a Raspberry Pi to build a full Karaoke Mixer. This utilises modularised CM6206 audio routing and a Flask control panel.
+This project outlines the process I went through (with assistance from a local QWEN3.5 AI Agent) to develop a Karaoke Box using a cheap $30 [CM6206 TOSLINK/SPDIF Sound Card](https://www.amazon.com.au/Sound-Card-Channel-Output-Adapter/dp/B0CGX1WDFW) from Amazon and a Raspberry Pi to build a full Karaoke Mixer. This utilises modularised CM6206 audio routing and a Flask control panel.
 
 ## Installation
 
